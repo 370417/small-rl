@@ -1,7 +1,7 @@
 """
 """
 
-from heapq import heapify, heappop, heappush
+from heapq import heapify, heappop, heappush, heappushpop
 from math import inf
 
 WIDTH = 64
@@ -45,7 +45,7 @@ def astar(startid, endid, neighbors, cost, heuristic):
                     neighbor[2] = alt_g
                     heapify(openheap)
 
-def Schedule():
+"""def Schedule():
     schedule = []
     time = 0
     def push(id, delay=0):
@@ -58,4 +58,23 @@ def Schedule():
         newtime, newid = heappushpop(schedule, (time + delay, id))
         time = newtime
         return newid
-    return (push, pop, pushpop)
+    return (push, pop, pushpop)"""
+
+class Schedule:
+
+    def __init__(self):
+        self.schedule = []
+        self.time = 0
+
+    def push(self, id, delay):
+        heappush(self.schedule, (self.time + delay, id))
+
+    def pop(self):
+        time, id = heappop(self.schedule)
+        self.time = time
+        return id
+
+    def pushpop(self, id, delay):
+        time, id = heappushpop(self.schedule, (self.time + delay, id))
+        self.time = time
+        return id

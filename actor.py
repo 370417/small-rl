@@ -10,26 +10,28 @@ class Actor:
     def __init__(self):
         self.state = ''
         self.behaviors = {}
-        self.id = newactorid
+        self.id = Actor.newactorid
 
-        newactorid += 1
-        actors[self.id] = self
+        Actor.newactorid += 1
+        Actor.actors[self.id] = self
 
-    def act(self, schedulepushpop):
+    def act(self, schedule):
         delay = self.behaviors[self.state]()
-        nextactorid = schedulepushpop(self.id, delay)
-        actors[nextactorid].act(schedulepushpop)
+        nextactorid = schedule.pushpop(self.id, delay)
+        actors[nextactorid].act(schedule)
 
 class Player(Actor):
-    """"""
+    """A player is an actor who can give and receive input and output"""
 
-    def __init__(self, input):
-        super().__init__(self)
+    def __init__(self, input, output):
+        super().__init__()
         self.input = input
+        self.output = output
 
-    def act(self, schedulepushpop):
+    def act(self, schedule):
+        self.output(('done',))
         input = next(self.input)
         # execute action and find delay
         delay = 0
-        nextactorid = schedulepushpop(self.id, delay)
-        actors[nextactorid].act(schedulepushpop)
+        nextactorid = schedule.pushpop(self.id, delay)
+        Actor.actors[nextactorid].act(schedule)

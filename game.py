@@ -5,6 +5,7 @@ import random
 from math import inf
 from pure import WIDTH, HEIGHT, Schedule
 from level import generatelevel
+import actor
 
 char = {
     'wall': 0x20,
@@ -34,7 +35,10 @@ def creategame(output, input):
         for y in range(HEIGHT):
             output(('put', x, y, char[types[x,y]]))
 
-    schedulepush, schedulepop, schedulepushpop = Schedule()
+    schedule = Schedule()
 
-    output(('done',))
-    next(input)
+    player = actor.Player(input, output)
+    player.act(schedule)
+
+    #output(('done',))
+    #next(input)
