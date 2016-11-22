@@ -45,21 +45,6 @@ def astar(startid, endid, neighbors, cost, heuristic):
                     neighbor[2] = alt_g
                     heapify(openheap)
 
-"""def Schedule():
-    schedule = []
-    time = 0
-    def push(id, delay=0):
-        heappush(schedule, (time + delay, id))
-    def pop():
-        newtime, id = heappop(schedule)
-        time = newtime
-        return id
-    def pushpop(id, delay=0):
-        newtime, newid = heappushpop(schedule, (time + delay, id))
-        time = newtime
-        return newid
-    return (push, pop, pushpop)"""
-
 class Schedule:
 
     def __init__(self):
