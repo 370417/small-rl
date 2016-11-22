@@ -3,7 +3,6 @@
 
 from heapq import heapify, heappop, heappush
 from math import inf
-from collections import namedtuple
 
 WIDTH = 64
 HEIGHT = 24
