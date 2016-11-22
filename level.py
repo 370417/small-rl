@@ -5,16 +5,18 @@ import random
 from math import inf
 from pure import WIDTH, HEIGHT, astar
 
-def generatelevel(seed):
+def generatelevel(seed, startx, starty):
     random.seed(seed)
 
     tiles = {(x, y): 'wall' for x in range(WIDTH) for y in range(HEIGHT)}
 
-    def place_room():
-        width = random.randrange(7, 20)
-        height = random.randrange(6, 9)
-        x = random.randrange(WIDTH - width)
-        y = random.randrange(HEIGHT - height)
+    def place_room(x=None, y=None, width=None, height=None):
+
+        if x == None:
+            width = random.randrange(7, 20)
+            height = random.randrange(6, 9)
+            x = random.randrange(WIDTH - width)
+            y = random.randrange(HEIGHT - height)
 
         for i in range(x, x + width):
             for j in range(y, y + height):
@@ -44,9 +46,15 @@ def generatelevel(seed):
         }
 
     def place_rooms():
+        #place first room
+        width = random.randrange(7, 20)
+        height = random.randrange(6, 9)
+        x = startx - random.randrange(1, width - 1)
+        y = starty - random.randrange(1, height - 1)
+        rooms = [place_room(x, y, width, height)]
+
         failures = 0
-        successes = 0
-        rooms = []
+        successes = 1
         while successes < 5 or failures < 5 * successes:
             room = place_room()
             if room:
@@ -136,5 +144,5 @@ def generatelevel(seed):
 class Level:
     """A map level"""
 
-    def __init__(self, seed):
-        self.tiles = generatelevel(seed)
+    def __init__(self, seed, x, y):
+        self.tiles = generatelevel(seed, x, y)

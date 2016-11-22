@@ -4,7 +4,7 @@
 from heapq import heapify, heappop, heappush, heappushpop
 from math import inf
 
-WIDTH = 64
+WIDTH = 65
 HEIGHT = 24
 
 def astar(startid, endid, neighbors, cost, heuristic):
