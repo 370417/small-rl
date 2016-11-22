@@ -23,16 +23,16 @@ class Actor:
 class Mover(Actor):
     """An actor that can move around the map"""
 
-    def __init__(self, position, level):
-        super().__init__()
+    def __init__(self, position, level, **args):
+        super().__init__(**args)
         self.position = position
         self.level = level
 
-class Player(Actor):
+class Player(Mover):
     """A player is an actor who can give and receive input and output"""
 
-    def __init__(self, input, output):
-        super().__init__()
+    def __init__(self, input, output, **args):
+        super().__init__(**args)
         self.input = input
         self.output = output
 
