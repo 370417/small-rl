@@ -23,23 +23,31 @@ class Actor:
 class Mover(Actor):
     """An actor that can move around the map"""
 
-    def __init__(self, position, level, **args):
-        super().__init__(**args)
-        self.position = position
+    def __init__(self, x, y, level, **kwargs):
+        super().__init__(**kwargs)
+        self.x = x
+        self.y = y
         self.level = level
+
+    def move(self, dx, dy):
+        return 12
 
 class Player(Mover):
     """A player is an actor who can give and receive input and output"""
 
-    def __init__(self, input, output, **args):
-        super().__init__(**args)
+    def __init__(self, input, output, **kwargs):
+        super().__init__(**kwargs)
         self.input = input
         self.output = output
 
     def act(self, schedule):
         self.output(('done',))
         input = next(self.input)
-        # execute action and find delay
-        delay = 0
+        inputtype = input[0]
+        inputargs = input[1:]
+        if inputtype == 'quit':
+            return
+        actions = {'move': self.move}
+        delay = actions[inputtype](*inputargs)
         nextactorid = schedule.pushpop(self.id, delay)
         Actor.actors[nextactorid].act(schedule)

@@ -37,7 +37,12 @@ def creategame(output, input):
 
     schedule = Schedule()
 
-    player = actor.Player(input, output)
+    player = actor.Player(
+        input = input,
+        output = output, 
+        x = 0,
+        y = 0,
+        level = level)
     player.act(schedule)
 
     #output(('done',))
