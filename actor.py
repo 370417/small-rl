@@ -20,6 +20,14 @@ class Actor:
         nextactorid = schedule.pushpop(self.id, delay)
         actors[nextactorid].act(schedule)
 
+class Mover(Actor):
+    """An actor that can move around the map"""
+
+    def __init__(self, position, level):
+        super().__init__()
+        self.position = position
+        self.level = level
+
 class Player(Actor):
     """A player is an actor who can give and receive input and output"""
 

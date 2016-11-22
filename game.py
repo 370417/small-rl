@@ -4,7 +4,7 @@
 import random
 from math import inf
 from pure import WIDTH, HEIGHT, Schedule
-from level import generatelevel
+from level import Level
 import actor
 
 char = {
@@ -29,11 +29,11 @@ def creategame(output, input):
     #seed = 9847
     print(seed)
 
-    types = generatelevel(seed)
+    level = Level(seed)
 
     for x in range(WIDTH):
         for y in range(HEIGHT):
-            output(('put', x, y, char[types[x,y]]))
+            output(('put', x, y, char[level.tiles[x,y]]))
 
     schedule = Schedule()
 

@@ -8,7 +8,7 @@ from pure import WIDTH, HEIGHT, astar
 def generatelevel(seed):
     random.seed(seed)
 
-    types = {(x, y): 'wall' for x in range(WIDTH) for y in range(HEIGHT)}
+    tiles = {(x, y): 'wall' for x in range(WIDTH) for y in range(HEIGHT)}
 
     def place_room():
         width = random.randrange(7, 20)
@@ -18,21 +18,21 @@ def generatelevel(seed):
 
         for i in range(x, x + width):
             for j in range(y, y + height):
-                if types[i,j] != 'wall':
+                if tiles[i,j] != 'wall':
                     return False
 
         for i in range(x + 1, x + width - 1):
-            types[i,y] = 'hwall'
-            types[i,y+height-1] = 'hwall'
+            tiles[i,y] = 'hwall'
+            tiles[i,y+height-1] = 'hwall'
             for j in range(y + 1, y + height - 1):
-                types[i,j] = 'floor'
+                tiles[i,j] = 'floor'
         for j in range(y + 1, y + height - 1):
-            types[x,j] = 'vwall'
-            types[x+width-1,j] = 'vwall'
-        types[x,y] = 'nwcorner'
-        types[x+width-1,y] = 'necorner'
-        types[x,y+height-1] = 'swcorner'
-        types[x+width-1,y+height-1] = 'secorner'
+            tiles[x,j] = 'vwall'
+            tiles[x+width-1,j] = 'vwall'
+        tiles[x,y] = 'nwcorner'
+        tiles[x+width-1,y] = 'necorner'
+        tiles[x,y+height-1] = 'swcorner'
+        tiles[x+width-1,y+height-1] = 'secorner'
 
         return {
             'x': x,
@@ -75,8 +75,8 @@ def generatelevel(seed):
         def cost(previd, nextid):
             px, py = previd
             nx, ny = nextid
-            prev = types[previd]
-            next = types[nextid]
+            prev = tiles[previd]
+            next = tiles[nextid]
             if next[2:] == 'corner':
                 return inf
             elif next in ('floor', 'door', 'corridor', 'floorsafe'):
@@ -98,23 +98,23 @@ def generatelevel(seed):
 
         path = astar(startid, endid, neighbors, cost, heuristic)
         for nodeid in path:
-            if types[nodeid][0:4] == 'wall':
-                types[nodeid] = 'corridor'
+            if tiles[nodeid][0:4] == 'wall':
+                tiles[nodeid] = 'corridor'
                 for neighborid in neighbors(nodeid):
-                    if types[neighborid] == 'wall':
-                        types[neighborid] += 'corridor'
-            elif types[nodeid][1:5] == 'wall':
-                types[nodeid] = 'door'
+                    if tiles[neighborid] == 'wall':
+                        tiles[neighborid] += 'corridor'
+            elif tiles[nodeid][1:5] == 'wall':
+                tiles[nodeid] = 'door'
                 for neighborid in neighbors(nodeid):
-                    if types[neighborid][1:] == 'wall':
-                        types[neighborid] += 'door'
-            elif types[nodeid] == 'floor':
-                types[nodeid] = 'floorsafe'
+                    if tiles[neighborid][1:] == 'wall':
+                        tiles[neighborid] += 'door'
+            elif tiles[nodeid] == 'floor':
+                tiles[nodeid] = 'floorsafe'
 
     def randtile():
         x = random.randrange(WIDTH)
         y = random.randrange(HEIGHT)
-        if types[x,y] in ('floor', 'corridor'):
+        if tiles[x,y] in ('floor', 'corridor'):
             return (x, y)
         else:
             return randtile()
@@ -131,4 +131,10 @@ def generatelevel(seed):
         x2, y2 = randtile()
         corridor(x1, y1, x2, y2)
 
-    return types
+    return tiles
+
+class Level:
+    """A map level"""
+
+    def __init__(self, seed):
+        self.tiles = generatelevel(seed)
