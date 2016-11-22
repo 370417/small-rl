@@ -7,42 +7,28 @@ from pure import WIDTH, HEIGHT, Schedule
 from level import Level
 import actor
 
-char = {
-    'wall': 0x20,
-    'floor': 0x2E,
-    'floorsafe': 0x2C,
-    'hwall': 0x2500,
-    'vwall': 0x2502,
-    'hwalldoor': 0x2500,
-    'vwalldoor': 0x2502,
-    'nwcorner': 0x250C,
-    'necorner': 0x2510,
-    'swcorner': 0x2514,
-    'secorner': 0x2518,
-    'corridor': 0x23,
-    'door': 0x2B,
-    'wallcorridor': 0x20,
-}
-
 def creategame(output, input):
     seed = random.randrange(9999)
     #seed = 9847
     print(seed)
 
-    level = Level(seed)
-
-    for x in range(WIDTH):
-        for y in range(HEIGHT):
-            output(('put', x, y, char[level.tiles[x,y]]))
-
-    schedule = Schedule()
-
     player = actor.Player(
         input = input,
         output = output, 
-        x = 0,
-        y = 0,
-        level = level)
+        x = 33,
+        y = 13,
+        level = None)
+
+    level = Level(seed, player.x, player.y)
+
+    player.movelevel(level)
+
+    #for x in range(WIDTH):
+    #    for y in range(HEIGHT):
+    #        output(('put', x, y, char[level.tiles[x,y]]))
+
+    schedule = Schedule()
+
     player.act(schedule)
 
     #output(('done',))

@@ -4,6 +4,23 @@
 from bearlibterminal import terminal as blt
 from game import creategame
 
+char = {
+    'wall': 0x20,
+    'floor': 0x2E,
+    'floorsafe': 0x2C,
+    'hwall': 0x2500,
+    'vwall': 0x2502,
+    'hwalldoor': 0x2500,
+    'vwalldoor': 0x2502,
+    'nwcorner': 0x250C,
+    'necorner': 0x2510,
+    'swcorner': 0x2514,
+    'secorner': 0x2518,
+    'corridor': 0x23,
+    'door': 0x2B,
+    'wallcorridor': 0x20,
+}
+
 def read():
     while True:
         yield blt.read()
@@ -14,8 +31,8 @@ blt.set('window.title="smallrl"')
 def gameoutput(output):
     type = output[0]
     if type == 'put':
-        x, y, char = output[1:]
-        blt.put(x, y, char)
+        x, y, tile = output[1:]
+        blt.put(x, y, char[tile])
     elif type == 'done':
         blt.refresh()
 
