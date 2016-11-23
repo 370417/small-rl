@@ -32,6 +32,12 @@ class Mover(Actor):
         self.position = position
         self.level = level
 
+    def canmove(self, dx, dy, level=None):
+        if not level:
+            level = self.level
+        x, y = self.position
+        return level.tiles[x+dx,y+dy] in ('floor', 'door', 'corridor')
+
     def move(self, dx, dy):
         x, y = self.position
         target = (x + dx, y + dy)
@@ -70,9 +76,12 @@ class Player(Mover):
         Actor.actors[nextactorid].act(schedule)
 
     def move(self, dx, dy):
-        delay = super().move(dx, dy)
-        self.see()
-        return delay
+        if self.canmove(dx, dy):
+            delay = super().move(dx, dy)
+            self.see()
+            return delay
+        else:
+            return 0
 
     def movelevel(self, level):
         delay = super().movelevel(level)
