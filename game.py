@@ -14,22 +14,14 @@ def creategame(output, input):
 
     player = actor.Player(
         input = input,
-        output = output, 
-        x = 33,
-        y = 13,
+        output = output,
+        position = (33, 13),
         level = None)
 
-    level = Level(seed, player.x, player.y)
+    level = Level(seed, *player.position)
 
     player.movelevel(level)
-
-    #for x in range(WIDTH):
-    #    for y in range(HEIGHT):
-    #        output(('put', x, y, char[level.tiles[x,y]]))
 
     schedule = Schedule()
 
     player.act(schedule)
-
-    #output(('done',))
-    #next(input)

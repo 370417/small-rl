@@ -2,7 +2,7 @@
 """
 
 from heapq import heapify, heappop, heappush, heappushpop
-from math import inf
+from math import inf, ceil
 
 WIDTH = 65
 HEIGHT = 24
@@ -63,3 +63,38 @@ class Schedule:
         time, id = heappushpop(self.schedule, (self.time + delay, id))
         self.time = time
         return id
+
+def shadowcast(cx, cy, transparent):
+    def scan(y, start, end, transparent):
+        if start < end:
+            xmin = round((y - 0.5) * start)
+            xmax = ceil((y + 0.5) * end - 0.5)
+            for x in range(xmin, xmax + 1):
+                if transparent(x, y):
+                    if x >= y * start and x <= y * end:
+                        yield (x, y)
+                        if not transparent(x, y + 1):
+                            yield (x, y + 1)
+                        if not transparent(x + 1, y + 1):
+                            yield (x + 1, y + 1)
+                else:
+                    yield from scan(y + 1, start, (x - 0.5) / y, transparent)
+                    start = (x + 0.5) / y
+                    if start >= end:
+                        break
+            yield from scan(y + 1, start, end, transparent)
+    yield (cx, cy)
+    transforms = (
+        ( 1, 0, 0, 1),
+        ( 1, 0, 0,-1),
+        (-1, 0, 0, 1),
+        (-1, 0, 0,-1),
+        ( 0, 1, 1, 0),
+        ( 0, 1,-1, 0),
+        ( 0,-1, 1, 0),
+        ( 0,-1,-1, 0))
+    for xx, xy, yx, yy in transforms:
+        def transformedtransparent(x, y):
+            return transparent(cx + x * xx + y * yx, cy + x * xy + y * yy)
+        for x, y in scan(1, 0, 1, transformedtransparent):
+            yield (cx + x * xx + y * yx, cy + x * xy + y * yy)

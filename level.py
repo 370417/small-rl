@@ -87,7 +87,7 @@ def generatelevel(seed, startx, starty):
             next = tiles[nextid]
             if next[2:] == 'corner':
                 return inf
-            elif next in ('floor', 'door', 'corridor', 'floorsafe'):
+            elif next in ('floor', 'door', 'corridor'):
                 return 1
             elif next == 'wall':
                 return 2
@@ -116,8 +116,6 @@ def generatelevel(seed, startx, starty):
                 for neighborid in neighbors(nodeid):
                     if tiles[neighborid][1:] == 'wall':
                         tiles[neighborid] += 'door'
-            elif tiles[nodeid] == 'floor':
-                tiles[nodeid] = 'floorsafe'
 
     def randtile():
         x = random.randrange(WIDTH)
@@ -146,3 +144,11 @@ class Level:
 
     def __init__(self, seed, x, y):
         self.tiles = generatelevel(seed, x, y)
+        self.actors = {}
+
+    def transparent(self, x, y):
+        if (x, y) in self.tiles:
+            return self.tiles[x,y] in ('floor', 'corridor')
+        else:
+            return False
+
