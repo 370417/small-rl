@@ -3,6 +3,7 @@
 
 from heapq import heapify, heappop, heappush, heappushpop
 from math import inf, ceil
+from collections import namedtuple
 
 WIDTH = 65
 HEIGHT = 24
@@ -12,9 +13,9 @@ def astar(startid, endid, neighbors, cost, heuristic):
 
     startid - id of the start node
     endid - id of the end node
-    neighbors - a function that takes a node and returns an iterable of that node's neighbors
-    cost - a function that takes two nodes returns the cost to move between them
-    heuristic - a function that takes a node and returns the estimated distance between it and *start*
+    neighbors(nodeid) - iterable of the ids of nodeid's neighbor nodes
+    cost(previd, nextid) - returns the cost to move between prev and next nodes
+    heuristic(nodeid) - returns the estimated distance between node and start
     """
     open = {endid: [heuristic(endid), heuristic(endid), 0, endid]}
     closed = {}
@@ -46,43 +47,50 @@ def astar(startid, endid, neighbors, cost, heuristic):
                     heapify(openheap)
 
 class Schedule:
+    """Represents a schedule of events"""
 
     def __init__(self):
         self.schedule = []
         self.time = 0
 
     def push(self, id, delay):
+        """Schedule an event with id of id at a time of delay ticks from now"""
         heappush(self.schedule, (self.time + delay, id))
 
     def pop(self):
+        """Get the next event"""
         time, id = heappop(self.schedule)
         self.time = time
         return id
 
     def pushpop(self, id, delay):
+        "Schedule an event with id of id and get the next event"
         time, id = heappushpop(self.schedule, (self.time + delay, id))
         self.time = time
         return id
 
+def scan(y, start, end, transparent):
+    """Generate fov for one octant"""
+    if start < end:
+        xmin = round((y - 0.5) * start)
+        xmax = ceil((y + 0.5) * end - 0.5)
+        for x in range(xmin, xmax + 1):
+            if transparent(x, y):
+                if x >= y * start and x <= y * end:
+                    yield (x, y)
+                    if not transparent(x, y + 1):
+                        yield (x, y + 1)
+                    if not transparent(x + 1, y + 1):
+                        yield (x + 1, y + 1)
+            else:
+                yield from scan(y + 1, start, (x - 0.5) / y, transparent)
+                start = (x + 0.5) / y
+                if start >= end:
+                    break
+        yield from scan(y + 1, start, end, transparent)
+
 def shadowcast(cx, cy, transparent):
-    def scan(y, start, end, transparent):
-        if start < end:
-            xmin = round((y - 0.5) * start)
-            xmax = ceil((y + 0.5) * end - 0.5)
-            for x in range(xmin, xmax + 1):
-                if transparent(x, y):
-                    if x >= y * start and x <= y * end:
-                        yield (x, y)
-                        if not transparent(x, y + 1):
-                            yield (x, y + 1)
-                        if not transparent(x + 1, y + 1):
-                            yield (x + 1, y + 1)
-                else:
-                    yield from scan(y + 1, start, (x - 0.5) / y, transparent)
-                    start = (x + 0.5) / y
-                    if start >= end:
-                        break
-            yield from scan(y + 1, start, end, transparent)
+    """Generate fov centered on (cx, cy)"""
     yield(cx, cy)
     transforms = (
         ( 1, 0, 0, 1),
