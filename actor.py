@@ -80,8 +80,6 @@ class Player(Mover):
         return delay
 
     def see(self):
-        #for position, tile in self.level.tiles.items():
-        #    self.output(('put', *position, tile))
         for position in shadowcast(*self.position, self.level.transparent):
             self.output(('put', *position, self.level.tiles[position]))
             if (position in self.level.actors):

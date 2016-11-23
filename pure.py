@@ -83,7 +83,7 @@ def shadowcast(cx, cy, transparent):
                     if start >= end:
                         break
             yield from scan(y + 1, start, end, transparent)
-    yield (cx, cy)
+    yield(cx, cy)
     transforms = (
         ( 1, 0, 0, 1),
         ( 1, 0, 0,-1),
@@ -94,7 +94,13 @@ def shadowcast(cx, cy, transparent):
         ( 0,-1, 1, 0),
         ( 0,-1,-1, 0))
     for xx, xy, yx, yy in transforms:
+        def transform(x, y):
+            return (cx + x * xx + y * yx, cy + x * xy + y * yy)
         def transformedtransparent(x, y):
-            return transparent(cx + x * xx + y * yx, cy + x * xy + y * yy)
+            return transparent(*transform(x, y))
+        if not transformedtransparent(0, 1):
+            yield transform(0, 1)
+        if not transformedtransparent(1, 1):
+            yield transform(1, 1)
         for x, y in scan(1, 0, 1, transformedtransparent):
-            yield (cx + x * xx + y * yx, cy + x * xy + y * yy)
+            yield transform(x, y)
