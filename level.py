@@ -145,6 +145,7 @@ class Level:
     def __init__(self, seed, x, y):
         self.tiles = generatelevel(seed, x, y)
         self.actors = {}
+        self.deathpath = {}
 
     def transparent(self, x, y):
         if (x, y) in self.tiles:

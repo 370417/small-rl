@@ -74,11 +74,10 @@ class Player(Mover):
 
     def move(self, dx, dy):
         if self.canmove(dx, dy):
-            delay = super().move(dx, dy)
+            self.level.deathpath[self.position] = (dx, dy)
+            super().move(dx, dy)
             self.see()
-            return delay
-        else:
-            return 0
+            delay = 12
 
     def movelevel(self, level):
         delay = super().movelevel(level)
@@ -88,5 +87,7 @@ class Player(Mover):
     def see(self):
         for position in shadowcast(*self.position, self.level.transparent):
             self.output(('put', *position, self.level.tiles[position]))
+            if (position in self.level.deathpath):
+                self.output(('put', *position, self.level.deathpath[position]))
             if (position in self.level.actors):
                 self.output(('put', *position, self.level.actors[position].char))
