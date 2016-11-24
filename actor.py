@@ -10,19 +10,17 @@ class Actor:
     newactorid = 0
 
     def __init__(self):
-        self.state = ''
-        self.behaviors = {}
         self.id = Actor.newactorid
-        self.delay = 12
+        self.delay = 0
         self.char = '?'
 
         Actor.newactorid += 1
         Actor.actors[self.id] = self
 
     def act(self, schedule):
-        delay = self.behaviors[self.state]()
-        nextactorid = schedule.pushpop(self.id, delay)
-        actors[nextactorid].act(schedule)
+        nextactorid = schedule.pushpop(self.id, self.delay)
+        self.delay = 0
+        Actor.actors[nextactorid].act(schedule)
 
 class Mover(Actor):
     """An actor that can move around the level"""
@@ -44,7 +42,7 @@ class Mover(Actor):
         self.level.actors.pop(self.position)
         self.position = target
         self.level.actors[self.position] = self
-        return self.delay
+        self.delay = 12
 
     def movelevel(self, level):
         self.level = level
@@ -52,7 +50,7 @@ class Mover(Actor):
             print('movelevel: target is occupied')
         else:
             level.actors[self.position] = self
-        return self.delay
+        self.delay = 12
 
 class Player(Mover):
     """A player is an actor who can give and receive input and output"""
@@ -71,9 +69,8 @@ class Player(Mover):
         if inputtype == 'quit':
             return
         actions = {'move': self.move}
-        delay = actions[inputtype](*inputargs)
-        nextactorid = schedule.pushpop(self.id, delay)
-        Actor.actors[nextactorid].act(schedule)
+        actions[inputtype](*inputargs)
+        super().act(schedule)
 
     def move(self, dx, dy):
         if self.canmove(dx, dy):
