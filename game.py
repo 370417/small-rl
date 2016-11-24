@@ -20,8 +20,13 @@ def creategame(output, input):
 
     level = Level(seed, *player.position)
 
+    reaper = actor.Reaper(
+        position = player.position,
+        level = level)
+
     player.movelevel(level)
 
     schedule = Schedule()
+    schedule.push(reaper.id, 120)
 
     player.act(schedule)

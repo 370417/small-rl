@@ -22,6 +22,18 @@ class Actor:
         self.delay = 0
         Actor.actors[nextactorid].act(schedule)
 
+class Event(Actor):
+    """An actor that calls a function once then removes itself"""
+
+    def __init__(self, function, **kwargs):
+        super().__init__(**kwargs)
+        self.function = function
+
+    def act(self, schedule):
+        del Actor.actors[this.id]
+        self.function()
+        Actor.actors[schedule.pop()].act(schedule)
+
 class Mover(Actor):
     """An actor that can move around the level"""
 
@@ -91,3 +103,20 @@ class Player(Mover):
                 self.output(('put', *position, self.level.deathpath[position]))
             if (position in self.level.actors):
                 self.output(('put', *position, self.level.actors[position].char))
+
+class Reaper(Mover):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.char = 'R'
+        self.spawned = False
+
+    def act(self, schedule):
+        if self.spawned:
+            direction = self.level.deathpath[self.position]
+            del self.level.deathpath[self.position]
+            self.move(*direction)
+        else:
+            self.movelevel(self.level)
+            self.spawned = True
+        super().act(schedule)
