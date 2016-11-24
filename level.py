@@ -9,6 +9,7 @@ def generatelevel(seed, startx, starty):
     random.seed(seed)
 
     tiles = {(x, y): 'wall' for x in range(WIDTH) for y in range(HEIGHT)}
+    costs = {(x, y): random.random() for x in range(WIDTH) for y in range(HEIGHT)}
 
     def place_room(x=None, y=None, width=None, height=None):
 
@@ -86,19 +87,20 @@ def generatelevel(seed, startx, starty):
             prev = tiles[previd]
             next = tiles[nextid]
             if next[2:] == 'corner':
-                return inf
+                cost = inf
             elif next in ('floor', 'door', 'corridor'):
-                return 1
+                cost = 1
             elif next == 'wall':
-                return 2
+                cost = 2
             elif next == 'wallcorridor' and prev == 'wallcorridor':
-                return 99
+                cost = 99
             elif (next[1:] == 'walldoor'
                     or next == 'hwall' and prev == 'hwall' and py == ny
                     or next == 'vwall' and prev == 'vwall' and px == nx):
-                return 999
+                cost = 999
             else:
-                return 4
+                cost = 4
+            return cost + costs[nextid]
 
         def heuristic(nodeid):
             x, y = nodeid
