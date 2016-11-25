@@ -31,12 +31,27 @@ def read():
 blt.open()
 blt.set('window.title="smallrl"')
 
+tiles = {}
+
 def gameoutput(output):
     type = output[0]
-    if type == 'put':
+    if type == 'fov':
+        blt.color('gray')
+        for x, y in tiles:
+            blt.put(x, y, tiles[x,y])
+        blt.color('white')
+    elif type == 'tile':
         x, y, tile = output[1:]
         if (tile in char):
             tile = char[tile]
+        tiles[x,y] = tile
+        blt.put(x, y, tile)
+    elif type == 'path':
+        x, y, tile = output[1:]
+        tile = char[tile]
+        blt.put(x, y, tile)
+    elif type == 'actor':
+        x, y, tile = output[1:]
         blt.put(x, y, tile)
     elif type == 'done':
         blt.refresh()

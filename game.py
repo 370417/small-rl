@@ -27,6 +27,12 @@ def creategame(output, input):
     player.movelevel(level)
 
     schedule = Schedule()
-    schedule.push(reaper.id, 120)
+    schedule.push(player.id, 0)
+    schedule.push(reaper.id, 20)
 
-    player.act(schedule)
+    currentactor = actor.Actor.actors[schedule.pop()]
+    while schedule.peek():
+        delay = currentactor.act()
+        currentactor = actor.Actor.actors[schedule.pushpop(currentactor.id, delay)]
+
+    print(schedule.schedule)

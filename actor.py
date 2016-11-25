@@ -7,20 +7,18 @@ class Actor:
     """An actor is an object that has an act function and can be scheduled"""
 
     actors = {}
-    newactorid = 0
+    newactorid = 1
 
     def __init__(self):
         self.id = Actor.newactorid
-        self.delay = 0
+        self.delay = 2
         self.char = '?'
 
         Actor.newactorid += 1
         Actor.actors[self.id] = self
 
-    def act(self, schedule):
-        nextactorid = schedule.pushpop(self.id, self.delay)
-        self.delay = 0
-        Actor.actors[nextactorid].act(schedule)
+    def act(self):
+        return self.delay
 
 class Event(Actor):
     """An actor that calls a function once then removes itself"""
@@ -30,7 +28,7 @@ class Event(Actor):
         self.function = function
 
     def act(self, schedule):
-        del Actor.actors[this.id]
+        del Actor.actors[self.id]
         self.function()
         Actor.actors[schedule.pop()].act(schedule)
 
@@ -54,7 +52,6 @@ class Mover(Actor):
         self.level.actors.pop(self.position)
         self.position = target
         self.level.actors[self.position] = self
-        self.delay = 12
 
     def movelevel(self, level):
         self.level = level
@@ -62,7 +59,6 @@ class Mover(Actor):
             print('movelevel: target is occupied')
         else:
             level.actors[self.position] = self
-        self.delay = 12
 
 class Player(Mover):
     """A player is an actor who can give and receive input and output"""
@@ -73,7 +69,7 @@ class Player(Mover):
         self.output = output
         self.char = '@'
 
-    def act(self, schedule):
+    def act(self):
         self.output(('done',))
         input = next(self.input)
         inputtype = input[0]
@@ -81,28 +77,33 @@ class Player(Mover):
         if inputtype == 'quit':
             return
         actions = {'move': self.move}
-        actions[inputtype](*inputargs)
-        super().act(schedule)
+        successful = actions[inputtype](*inputargs)
+        if successful:
+            return super().act()
+        else:
+            return self.act()
 
     def move(self, dx, dy):
         if self.canmove(dx, dy):
             self.level.deathpath[self.position] = (dx, dy)
             super().move(dx, dy)
             self.see()
-            delay = 12
+            return True
+        else:
+            return False
 
     def movelevel(self, level):
-        delay = super().movelevel(level)
+        super().movelevel(level)
         self.see()
-        return delay
 
     def see(self):
+        self.output(('fov',))
         for position in shadowcast(*self.position, self.level.transparent):
-            self.output(('put', *position, self.level.tiles[position]))
+            self.output(('tile', *position, self.level.tiles[position]))
             if (position in self.level.deathpath):
-                self.output(('put', *position, self.level.deathpath[position]))
+                self.output(('path', *position, self.level.deathpath[position]))
             if (position in self.level.actors):
-                self.output(('put', *position, self.level.actors[position].char))
+                self.output(('actor', *position, self.level.actors[position].char))
 
 class Reaper(Mover):
 
@@ -111,7 +112,7 @@ class Reaper(Mover):
         self.char = 'R'
         self.spawned = False
 
-    def act(self, schedule):
+    def act(self):
         if self.spawned:
             direction = self.level.deathpath[self.position]
             del self.level.deathpath[self.position]
@@ -119,4 +120,4 @@ class Reaper(Mover):
         else:
             self.movelevel(self.level)
             self.spawned = True
-        super().act(schedule)
+        return super().act()
