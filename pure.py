@@ -81,20 +81,24 @@ def scan(y, start, end, transparent):
     if start < end:
         xmin = round((y - 0.5) * start)
         xmax = ceil((y + 0.5) * end - 0.5)
+        toosmall = True # True if no tiles are in view
         for x in range(xmin, xmax + 1):
             if transparent(x, y):
                 if x >= y * start and x <= y * end:
                     yield (x, y)
+                    toosmall = False
                     if not transparent(x, y + 1):
                         yield (x, y + 1)
                     if not transparent(x + 1, y + 1):
                         yield (x + 1, y + 1)
             else:
-                yield from scan(y + 1, start, (x - 0.5) / y, transparent)
+                if not toosmall:
+                    yield from scan(y + 1, start, (x - 0.5) / y, transparent)
                 start = (x + 0.5) / y
                 if start >= end:
                     break
-        yield from scan(y + 1, start, end, transparent)
+        if not toosmall:
+            yield from scan(y + 1, start, end, transparent)
 
 def shadowcast(cx, cy, transparent):
     """Generate fov centered on (cx, cy)"""

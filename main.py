@@ -35,24 +35,20 @@ tiles = {}
 
 def gameoutput(output):
     type = output[0]
-    if type == 'fov':
-        blt.color('gray')
-        for x, y in tiles:
-            blt.put(x, y, tiles[x,y])
+    if type == 'see':
         blt.color('white')
-    elif type == 'tile':
-        x, y, tile = output[1:]
-        if (tile in char):
-            tile = char[tile]
-        tiles[x,y] = tile
-        blt.put(x, y, tile)
-    elif type == 'path':
-        x, y, tile = output[1:]
-        tile = char[tile]
-        blt.put(x, y, tile)
-    elif type == 'actor':
-        x, y, tile = output[1:]
-        blt.put(x, y, tile)
+        x, y, tile, deathpath, actor = output[1:]
+        tiles[x,y] = char[tile]
+        if actor:
+            blt.put(x, y, actor.char)
+        elif deathpath:
+            blt.put(x, y, char[deathpath])
+        else:
+            blt.put(x, y, tiles[x,y])
+    elif type == 'unsee':
+        blt.color('gray')
+        x, y = output[1:]
+        blt.put(x, y, tiles[x,y])
     elif type == 'done':
         blt.refresh()
 

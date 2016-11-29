@@ -60,7 +60,21 @@ class Mover(Actor):
         else:
             level.actors[self.position] = self
 
-class Player(Mover):
+class Seer(Mover):
+    """An actor that can see"""
+
+    def __init__(self, fovrange, **kwargs):
+        super().__init__(**kwargs)
+        self.fovrange = fovrange
+        self.visible = set()
+
+    def look(self):
+        self.visible = set(shadowcast(*self.position, self.level.transparent))
+
+    def see(self, sight):
+        pass
+
+class Player(Seer):
     """A player is an actor who can give and receive input and output"""
 
     def __init__(self, input, output, **kwargs):
@@ -68,14 +82,33 @@ class Player(Mover):
         self.input = input
         self.output = output
         self.char = '@'
+        self.fov = {}
+        self.seen = set()
 
     def act(self):
+        for position in self.visible:
+            if position in self.level.actors:
+                actor = self.level.actors[position]
+            else:
+                actor = None
+            if position in self.level.deathpath:
+                deathpath = self.level.deathpath[position]
+            else:
+                deathpath = None
+            self.output((
+                'see',
+                *position,
+                self.level.tiles[position],
+                deathpath,
+                actor))
+        for x, y in self.oldvisible - self.visible:
+            self.output(('unsee', x, y))
         self.output(('done',))
         input = next(self.input)
         inputtype = input[0]
         inputargs = input[1:]
         if inputtype == 'quit':
-            return
+            return -1
         actions = {'move': self.move}
         successful = actions[inputtype](*inputargs)
         if successful:
@@ -87,23 +120,18 @@ class Player(Mover):
         if self.canmove(dx, dy):
             self.level.deathpath[self.position] = (dx, dy)
             super().move(dx, dy)
-            self.see()
+            self.look()
             return True
         else:
             return False
 
     def movelevel(self, level):
         super().movelevel(level)
-        self.see()
+        self.look()
 
-    def see(self):
-        self.output(('fov',))
-        for position in shadowcast(*self.position, self.level.transparent):
-            self.output(('tile', *position, self.level.tiles[position]))
-            if (position in self.level.deathpath):
-                self.output(('path', *position, self.level.deathpath[position]))
-            if (position in self.level.actors):
-                self.output(('actor', *position, self.level.actors[position].char))
+    def look(self):
+        self.oldvisible = self.visible
+        super().look()
 
 class Reaper(Mover):
 
