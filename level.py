@@ -47,7 +47,7 @@ def generatelevel(seed, startx, starty):
         }
 
     def place_rooms():
-        #place first room
+        # place first room
         width = random.randrange(7, 20)
         height = random.randrange(6, 9)
         x = startx - random.randrange(1, width - 1)
@@ -59,6 +59,11 @@ def generatelevel(seed, startx, starty):
         while successes < 5 or failures < 5 * successes:
             room = place_room()
             if room:
+                if successes == 1:
+                    # place stairs
+                    x = room['x'] + random.randrange(2, room['width'] - 2)
+                    y = room['y'] + random.randrange(2, room['height'] - 2)
+                    tiles[x,y] = 'downstairs'
                 successes += 1
                 rooms.append(room)
             else:
@@ -88,7 +93,7 @@ def generatelevel(seed, startx, starty):
             next = tiles[nextid]
             if next[2:] == 'corner':
                 cost = inf
-            elif next in ('floor', 'door', 'corridor'):
+            elif next in ('floor', 'door', 'corridor', 'downstairs'):
                 cost = 1
             elif next == 'wall':
                 cost = 2
@@ -151,7 +156,7 @@ class Level:
 
     def transparent(self, x, y):
         if (x, y) in self.tiles:
-            return self.tiles[x,y] in ('floor', 'corridor')
+            return self.tiles[x,y] in ('floor', 'corridor', 'downstairs', 'upstairs')
         else:
             return False
 

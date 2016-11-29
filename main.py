@@ -18,6 +18,8 @@ char = {
     'corridor': '#',
     'door': '+',
     'wallcorridor': ' ',
+    'downstairs': '>',
+    'upstairs': '<',
     ( 1, 0): '→',
     (-1, 0): '←',
     ( 0,-1): '↑',
